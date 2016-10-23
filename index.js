@@ -1,26 +1,65 @@
 var App = function(data) {
     var app = {
-        output: data.output || document.body,
+        output: outputElem(data),
+        outputHolder: createHolder(data),
         name: data.name || "default name",
         pages: createPages(data.steps.sort(sortSteps)),
         currentPageIndex: null,
         pagesOrder: data.order,
-        loadPage: function(newPageIndex) {
-            var oldPageIndex = this.currentPageIndex;
-
-            if (oldPageIndex === newPageIndex) return;
-
-            if (this.currentPageIndex !== null) {
-                this.pages[oldPageIndex].finish();
-            }
-            
-            this.pages[newPageIndex].start();
-            this.currentPageIndex = newPageIndex;
-        }
+        createNavigation: data.createNavigation ? createNavigation(data, outputElem(data)) : null,
+        loadPage: loadPage
     }
+
+    function createHolder(data) {
+        var holder = document.createElement("div");
+        holder.className = "b-wrapper__holder"
+        outputElem(data).appendChild(holder);
+
+        return holder;
+    }
+
+    function outputElem(data) {
+        return data.output || document.body;
+    }
+
+    function loadPage(newPageIndex) {
+        var oldPageIndex = this.currentPageIndex;
+
+        if (oldPageIndex === newPageIndex) return;
+
+        if (this.currentPageIndex !== null) {
+            this.pages[oldPageIndex].finish();
+        }
+        
+        this.pages[newPageIndex].start();
+        this.currentPageIndex = newPageIndex;
+    };
 
     function sortSteps(a, b) {
         return a.orederIndex > b.orederIndex;
+    }
+
+    function createNavigation(data, outputElem) {
+        var nav = document.createElement("ul");
+        nav.className = "b-nav";
+
+        for (var i=0; i<data.steps.length; i++) {
+            var navItem = document.createElement("li");
+            navItem.className = "b-nav__frame"
+            var navButton = document.createElement("buton");
+            navButton.className = "b-nav__button"
+
+            navButton.textContent = "item " + i;
+            navButton.dataset.index = i;
+            navButton.addEventListener("click", function() {
+                app.loadPage.apply(app, [this.dataset.index]);
+            });
+
+            navItem.appendChild(navButton);
+            nav.appendChild(navItem);
+        }
+
+        outputElem.appendChild(nav);
     }
 
     function createPages(data) {
@@ -52,15 +91,15 @@ var App = function(data) {
 
             start: function() {
                 for (var i=0; i<this.startMethods.length; i++) {
-                    this.startMethods[i]();
+                    new createNotification(this.startMethods[i]());
                 }
                 
-                app.output.innerHTML = this.draw();
+                app.outputHolder.innerHTML = this.draw();
             },
 
             finish: function() {
                 for (var i=0; i<this.startMethods.length; i++) {
-                    this.finishtMethods[i]();
+                    new createNotification(this.finishtMethods[i]());
                 }
             }
         };
@@ -73,5 +112,29 @@ var App = function(data) {
 
 
 
-container = new App({output: document.querySelector(".b-wrapper"),steps: steps, name: "qwerty", order: ["gven", "nik", "shit", "can"] });
+container = new App(
+    {
+        output: document.querySelector(".b-wrapper"),
+        steps: steps,
+        name: "qwerty",
+        order: ["gven", "nik", "shit", "can"],
+        createNavigation: true 
+    }
+);
 container.loadPage(0);
+
+
+
+
+function createNotification(data) {
+    var notificationHolder = document.querySelector(".b-notification");
+    this.notification = document.createElement("div");
+    this.notification.className = "b-notification__message";
+    this.notification.textContent = data;
+
+    notificationHolder.appendChild(this.notification);
+
+    setTimeout(function() {
+        this.notification.parentNode.removeChild(this.notification);
+    }.bind(this), 4000);
+}

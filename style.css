@@ -1,0 +1,34 @@
+.b-wrapper {
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    border: 3px solid #ccc;
+}
+.b-nav {
+    display: flex;
+}
+.b-nav__frame {
+    margin: 0 0 0 10px;
+}
+.b-nav__frame:first-child {
+    margin: 0;
+}
+.b-nav__button {
+    display: inline-block;
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+.b-notification {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+.b-notification__message {
+    margin: 10px 0 0;
+    padding: 20px;
+    background: #009645;
+    color: #fff;
+}
